@@ -1,0 +1,15 @@
+﻿@page "/"
+@inject NavigationManager NavigationManager
+
+<PageTitle>FishingeBot</PageTitle>
+
+<div class="buttons">
+    <button @onclick='() => openSite("/commands")'>Commands</button>
+    <button @onclick='() => openSite("/inventory")'>Inventory</button>
+</div>
+
+@code {
+    private void openSite(string site) {
+        NavigationManager.NavigateTo(site);
+    }
+}

@@ -1,0 +1,55 @@
+@page "/commands"
+
+<PageTitle>Commands</PageTitle>
+
+<table>
+    <tr class="tableHeading">
+        <td>Command</td>
+        <td>Description</td>
+        <td>Syntax</td>
+    </tr>
+    @foreach(Command command in commands) {
+        <tr>
+            <td>@command.name</td>
+            <td>@command.description</td>
+            <td>@command.syntax</td>
+        </tr>
+    }
+</table>
+
+<style>
+    td {
+        border: 1px solid black;
+        padding: 5px;
+    }
+
+    .tableHeading {
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    public static List<Command> commands = new List<Command> {
+        new Command {
+            name = "fishinge",
+            description = "Go fishing",
+            syntax = "fishinge"
+        },
+        new Command {
+            name = "fishinge inventory",
+            description = "View the inventory of a user",
+            syntax = "fishinge inventory <user>"
+        },
+        new Command {
+            name = "fishinge give",
+            description = "Give items to another user",
+            syntax = "fishinge give <user> <item> <amount>"
+        }
+    };
+
+    public struct Command {
+        public string name { get; set; }
+        public string description { get; set; }
+        public string syntax { get; set; }
+    }
+}

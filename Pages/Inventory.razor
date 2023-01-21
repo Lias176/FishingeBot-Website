@@ -1,0 +1,87 @@
+@page "/inventory"
+@page "/inventory/{user}"
+@using FireSharp.Response
+@using System.Text.Json
+@inject NavigationManager NavigationManager
+
+<PageTitle>Inventory</PageTitle>
+
+@if(User == null) {
+    <a>Select a user:</a>
+    <select @onchange="viewInventory">
+        <option></option>
+        @if(users != null) {
+            @foreach(string username in users.Keys) {
+                <option>@username</option>
+            }
+        }
+    </select>
+} else {
+    <table>
+        <tr class="tableHeading">
+            <td>Item</td>
+            <td>Count</td>
+        </tr>
+        @if(userInventory.itemStacks != null) {
+            foreach(ItemStack itemStack in userInventory.itemStacks) {
+                <tr>
+                    <td>@itemStack.name</td>
+                    <td>@itemStack.count</td>
+                </tr>
+            }
+        }
+    </table>
+}
+
+<style>
+    td {
+        border: 1px solid black;
+        padding: 5px;
+    }
+
+    .tableHeading {
+        font-weight: bold;
+    }
+</style>
+
+@code {
+    [Parameter]
+    public string? User { get; set; }
+
+    private Dictionary<string, UserInventory>? users;
+    private UserInventory userInventory = new UserInventory();
+
+    protected override async Task OnInitializedAsync()
+    {
+        if(User == null) {
+            FirebaseResponse response = await Database.client.GetAsync("");
+            users = JsonSerializer.Deserialize<Dictionary<string, UserInventory>>(response.Body);
+        } else {
+            FirebaseResponse response = await Database.client.GetAsync(User);
+            userInventory = JsonSerializer.Deserialize<UserInventory>(response.Body);
+        }
+    }
+
+    private void viewInventory(ChangeEventArgs e) {
+        if(e.Value == null) {
+            return;
+        }
+        if(string.IsNullOrWhiteSpace(e.Value.ToString())) {
+            return;
+        }
+
+        NavigationManager.NavigateTo("/inventory/" + e.Value.ToString(), true);
+    }
+
+    public struct UserInventory {
+        public List<ItemStack> itemStacks { get; set; }
+    }
+
+    public struct ItemStack {
+        public string name { get; set; }
+        public int count { get; set; }
+    }
+}
+
+
+

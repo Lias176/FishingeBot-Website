@@ -1,0 +1,11 @@
+@using FireSharp
+@using FireSharp.Config
+@using FireSharp.Interfaces
+
+@code {
+    private static IFirebaseConfig config = new FirebaseConfig {
+        BasePath = "https://fishingebot-b7e1b-default-rtdb.firebaseio.com/"
+    };
+
+    public static IFirebaseClient client = new FirebaseClient(config);
+}
