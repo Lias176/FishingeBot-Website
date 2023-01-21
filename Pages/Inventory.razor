@@ -17,20 +17,28 @@
         }
     </select>
 } else {
-    <table>
-        <tr class="tableHeading">
-            <td>Item</td>
-            <td>Count</td>
-        </tr>
-        @if(userInventory.itemStacks != null) {
-            foreach(ItemStack itemStack in userInventory.itemStacks) {
-                <tr>
-                    <td>@itemStack.name</td>
-                    <td>@itemStack.count</td>
+    @if(isInitialized) {
+        <PageTitle>@(User + "s Inventory")</PageTitle>
+        @if(userInventory == null || userInventory.itemStacks == null) {
+            <a>This user does not have any items</a>
+        } else {
+            <table>
+                <tr class="tableHeading">
+                    <td>Item</td>
+                    <td>Count</td>
                 </tr>
-            }
+                @foreach(ItemStack itemStack in userInventory.itemStacks)
+                {
+                    <tr>
+                        <td>@itemStack.name</td>
+                        <td>@itemStack.count</td>
+                    </tr>
+                }
+            </table>
         }
-    </table>
+    } else {
+        <a>Loading...</a>
+    }
 }
 
 <style>
@@ -49,7 +57,9 @@
     public string? User { get; set; }
 
     private Dictionary<string, UserInventory>? users;
-    private UserInventory userInventory = new UserInventory();
+    private UserInventory? userInventory;
+
+    private bool isInitialized = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -58,8 +68,12 @@
             users = JsonSerializer.Deserialize<Dictionary<string, UserInventory>>(response.Body);
         } else {
             FirebaseResponse response = await Database.client.GetAsync(User);
-            userInventory = JsonSerializer.Deserialize<UserInventory>(response.Body);
+            try {
+                userInventory = JsonSerializer.Deserialize<UserInventory>(response.Body);
+            } catch { }
         }
+
+        isInitialized = true;
     }
 
     private void viewInventory(ChangeEventArgs e) {
@@ -73,12 +87,12 @@
         NavigationManager.NavigateTo("/inventory/" + e.Value.ToString(), true);
     }
 
-    public struct UserInventory {
-        public List<ItemStack> itemStacks { get; set; }
+    public class UserInventory {
+        public List<ItemStack>? itemStacks { get; set; }
     }
 
-    public struct ItemStack {
-        public string name { get; set; }
+    public class ItemStack {
+        public string? name { get; set; }
         public int count { get; set; }
     }
 }
